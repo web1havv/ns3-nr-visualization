@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.gif
+*.png
+*.html
+data/simulation_results.json
+data/netsimulyzer_output.json
+data/ai_agent_observation.json
