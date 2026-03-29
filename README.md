@@ -2,7 +2,7 @@
 
 **GSoC 2026 Proof-of-Concept** | [The ns-3 Network Simulator Project](https://www.nsnam.org)  
 **Project:** Enabling 5G NR Examples Visualization  
-**Contributor:** Vansh (web1havv)
+**Contributor:** Vaibhav (web1havv)
 
 ---
 
