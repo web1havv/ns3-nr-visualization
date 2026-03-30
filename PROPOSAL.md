@@ -276,6 +276,8 @@ By the end of Week 10:
 
 **File-based, not intrusive.** The toolkit reads the trace files ns-3 already produces. Researchers do not need to modify their simulation scripts. The C++ helper in Week 8 is an optional convenience, not a requirement.
 
+**Python speed is not a concern here.** Alberto Gallegos raised Python performance as a concern for GUI tools. This toolkit is a post-processing tool — it runs after the simulation ends, not during it. Parsing a 5-second simulation's trace files takes under a second. The simulation itself runs in C++ at full speed, unchanged.
+
 **Split into small MRs.** Each week targets one mergeable unit. No monolithic "Phase 1" PR. This follows Tommaso Pecorella's explicit advice in the GSoC Zulip channel and makes review tractable.
 
 **JSON schema for interoperability.** The structured JSON export addresses mentor interest in a "generic approach" usable by web dashboards and AI agents, as discussed in the ns-3-nr mailing list.
