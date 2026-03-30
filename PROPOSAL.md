@@ -38,13 +38,35 @@ Biljana Bojovic (CTTC, ns-3-nr maintainer)
 
 ---
 
+## 5a. Patch Requirement
+
+Before writing this proposal I built a working proof-of-concept Python toolkit that parses real ns-3 NR trace files, generates KPI dashboards, animations, and exports structured JSON. The repository serves as my code submission:
+
+**https://github.com/web1havv/ns3-nr-visualization**
+
+The code was written after reading the `NrBearerStatsCalculator` and `PhyStatsCalculator` C++ source directly to understand the exact trace format. It includes a pytest test suite, a generic base parser class, and a DESIGN.md with architecture decision records.
+
+---
+
+## 5b. Why Me?
+
+I am the only applicant who has built a working proof-of-concept for this specific project before the application deadline. The toolkit already covers the core deliverables: parser, dashboard, animation, JSON export, filter engine, and test suite.
+
+More specifically:
+- I read the ns-3 NR C++ source (`nr-bearer-stats-calculator.cc`, `phy-stats-calculator.cc`) and identified that the column order and SINR unit (linear, not dB) are undocumented — this is the exact problem the project is supposed to solve
+- I read mentor feedback (Alberto Gallegos) about past visualizer failures and restructured the design around those failure modes before submitting
+- My background at Bolna AI (real-time systems, async task queues) and BITS Pilani (CS) gives me the systems thinking needed for a maintainable, long-lived tool
+- I have zero other commitments during the GSoC coding period
+
+---
+
 ## 6. Personal Background
 
 - Pre-final year undergraduate at **BITS Pilani, Pilani Campus** (B.E. Computer Science)
 - Currently interning as Software Development Engineer at **Bolna AI (YC W24)** — building backend infrastructure for real-time AI voice agents (session routing, async task queues, concurrent call handling)
 - Previously Research Intern at **Dubverse** (ML pipeline tooling) and SDE at **Bachatt** (backend, Python/Spring Boot)
 - **48th rank** out of 70,000+ participants in Amazon ML Challenge 2024, received Pre-Placement Interview offer
-- Strong Python background: `pandas`, `matplotlib`, `numpy`, `plotly`, `ipywidgets`, `pytest`; working knowledge of C++
+- Strong Python background: `pandas`, `matplotlib`, `numpy`, `ipywidgets`, `pytest`, `scipy`; working knowledge of C++
 - Familiar with Git, GitLab merge requests, and open-source contribution workflows
 
 ---
@@ -331,7 +353,7 @@ I will commit daily, open a draft MR for each week's deliverable, and post weekl
 
 **Languages:** Python (primary), C++ (working knowledge sufficient for ns-3 helper class)
 
-**Python stack:** pandas, matplotlib, numpy, plotly, ipywidgets, jupyterlab, pillow, pytest, scipy
+**Python stack:** pandas, matplotlib, numpy, ipywidgets, jupyterlab, pillow, pytest, scipy (no plotly — deliberately removed to keep core deps minimal)
 
 **C++:** Familiar with ns-3 coding style, clang-format, Doxygen; read the 5G-LENA NR source for this project
 
