@@ -1,7 +1,17 @@
-pandas>=2.0
-matplotlib>=3.7
-numpy>=1.24
-plotly>=5.0
-ipywidgets>=8.0
-jupyterlab>=4.0
-pillow>=10.0
+# Core dependencies — required for all scripts
+# All are mature, widely-used, and stable libraries with no
+# known compatibility issues with each other.
+matplotlib>=3.7   # BSD licence; ~20M monthly downloads; ns-3 docs already use it
+numpy>=1.24       # BSD licence; standard scientific Python baseline
+pandas>=2.0       # BSD licence; standard data analysis baseline
+
+# Optional — only needed for interactive notebook
+# Install with: pip install ns3-viz[interactive]
+# ipywidgets>=8.0
+# jupyterlab>=4.0
+
+# Optional — only needed for animated GIF output
+# pillow>=10.0
+
+# Optional — only needed for HTML report
+# (no plotly; replaced with matplotlib for zero extra deps)

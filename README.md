@@ -1,26 +1,73 @@
-# ns-3 5G NR Visualization Toolkit
+# ns-3 NR Visualization Toolkit
 
 **GSoC 2026 Proof-of-Concept** | [The ns-3 Network Simulator Project](https://www.nsnam.org)  
 **Project:** Enabling 5G NR Examples Visualization  
-**Contributor:** Vaibhav (web1havv)
+**Contributor:** Vaibhav Sharma (web1havv) | BITS Pilani
 
 ---
 
-## Overview
+## Design Philosophy
 
-This repository is a proof-of-concept for the GSoC 2026 project
-**"Enabling 5G NR examples visualization"** under the ns-3 Network Simulator.
+This toolkit was designed with four explicit constraints raised by past ns-3 visualization efforts that failed to be maintained:
 
-It demonstrates a Python-based visualization toolkit that parses **real ns-3 NR
-trace files** (produced by `NrBearerStatsCalculator` and `PhyStatsCalculator`)
-and generates:
+### 1. Minimal dependencies — core runs on 3 packages
 
-- A comprehensive **8-panel simulation dashboard** (static PNG)
-- A **50-frame animated GIF** showing live handover events and per-UE throughput
-- A **Jupyter Notebook** for interactive exploration of simulation results
+```
+matplotlib   (BSD)  — the only plotting library; already used in ns-3 docs
+numpy        (BSD)  — standard scientific baseline
+pandas       (BSD)  — standard data analysis baseline
+```
 
-The trace file format is taken directly from the ns-3 NR source:
-[`helper/nr-bearer-stats-calculator.cc`](https://gitlab.com/cttc-lena/nr/-/blob/master/helper/nr-bearer-stats-calculator.cc)
+`plotly`, `ipywidgets`, and `jupyterlab` are **optional extras** — the entire toolkit works without them. No Qt. No Electron. No compiled extensions.
+
+Install only what you need:
+```bash
+pip install matplotlib numpy pandas           # core
+pip install ipywidgets jupyterlab             # optional: interactive notebook
+pip install pillow                            # optional: animated GIF output
+```
+
+### 2. Reusable across all ns-3 modules — not NR-only
+
+The parser is built on a generic base class (`ns3_trace_parser.py`) that handles any ns-3 tab-separated trace file. Adding a new module means adding ~10 lines:
+
+```python
+class WifiEdcaStatsParser(Ns3TraceParser):
+    COLUMNS = [
+        ColDef("time",       float, "s"),
+        ColDef("node_id",    int),
+        ColDef("queue_size", int,   "pkts"),
+        # ... add columns from the .cc source
+    ]
+```
+
+The same visualization functions then work unchanged for WiFi, CSMA, LTE, or any future module.
+
+### 3. Survives ns-3 changes — column schema is isolated
+
+If ns-3 adds or renames a column in a trace file, **only the `COLUMNS` list in one class changes**. No parsing logic changes. No visualization code changes. This is a direct response to how past ns-3 visualizers broke every release.
+
+The column definitions live in one place and are the single source of truth for column names, types, units, and documentation.
+
+### 4. Modular — each script does one thing
+
+| Script | Does exactly one thing |
+|--------|----------------------|
+| `ns3_trace_parser.py` | Reads trace files → typed DataFrames |
+| `ns3_nr_parser.py` | NR-specific derived metrics (throughput, SINR dB, MCS) |
+| `flow_filter.py` | Filters DataFrames by UE/cell/time |
+| `visualize_nr.py` | Static 8-panel dashboard |
+| `animate_handover.py` | Handover animation |
+| `json_exporter.py` | JSON export for web/AI |
+| `kpi_dashboard.py` | Advanced KPI panels |
+| `report_generator.py` | HTML report + AI agent interface |
+| `realtime_dashboard.py` | Live file-watch dashboard |
+| `sem_integration.py` | SEM parameter sweep integration |
+| `multi_run_ci.py` | Multi-run statistical analysis |
+| `netanim_parser.py` | NetAnim XML + NR overlay |
+| `run_all.py` | CLI runner for the full pipeline |
+
+Each script can be used independently. Nothing is hard-coded to NR. The parser, filter, and statistics modules work for any ns-3 trace format.
 
 ---
 
@@ -38,104 +85,117 @@ The trace file format is taken directly from the ns-3 NR source:
 
 ---
 
-## Dashboard Preview
-
-![NR Dashboard](figures/nr_dashboard.png)
-
-**Panels:**
-1. Network topology — gNB/UE positions with coverage areas
-2. Per-UE DL throughput over time (handover dip visible)
-3. Per-UE DL SINR (dB) over time
-4. Cell-aggregate DL throughput
-5. CDF of DL throughput (per cell + overall)
-6. Jain's Fairness Index over time
-7. Delay vs. Throughput scatter (averaged per UE)
-8. Estimated MCS distribution (from SINR → 3GPP CQI mapping)
-
----
-
-## Animated Handover Visualization
-
-![Handover Animation](figures/handover_animation.gif)
-
-Shows real-time UE positions, SINR-based color coding, live throughput bars,
-and the handover event where UE 3 switches its serving cell at t = 2.5 s.
-
----
-
-## Files
-
-```
-ns3-viz/
-├── generate_traces.py     # Generates realistic ns-3 NR trace files
-├── ns3_nr_parser.py       # Parser for NrBearerStatsCalculator output
-├── visualize_nr.py        # 8-panel dashboard generator
-├── animate_handover.py    # Animated handover GIF
-├── ns3_nr_dashboard.ipynb # Interactive Jupyter notebook
-├── data/
-│   ├── DlRlcStats.txt     # Downlink RLC stats (ns-3 format)
-│   ├── UlRlcStats.txt     # Uplink RLC stats
-│   ├── DlPhySinr.txt      # Downlink PHY SINR traces
-│   ├── UlPhySinr.txt      # Uplink PHY SINR traces
-│   ├── topology.json      # Node positions
-│   └── flow_monitor.json  # FlowMonitor summary
-└── figures/
-    ├── nr_dashboard.png
-    └── handover_animation.gif
-```
-
----
-
-## Installation & Usage
+## Quick Start
 
 ```bash
-# Install dependencies
-pip install pandas matplotlib numpy plotly ipywidgets jupyterlab pillow
+# 1. Install core dependencies (3 packages)
+pip install matplotlib numpy pandas
 
-# Generate trace data (or use real ns-3 output)
+# 2. Generate synthetic trace data (matches real ns-3 NR output format)
 python3 generate_traces.py
 
-# Static 8-panel dashboard
-python3 visualize_nr.py
+# 3. Run the full pipeline
+python3 run_all.py --skip-generate
 
-# Animated handover visualization
-python3 animate_handover.py
-
-# Interactive Jupyter notebook
-jupyter lab ns3_nr_dashboard.ipynb
+# 4. Or run individual scripts
+python3 visualize_nr.py          # static 8-panel dashboard
+python3 animate_handover.py      # handover animation GIF
+python3 flow_filter.py           # per-UE deep-dive
+python3 json_exporter.py         # structured JSON output
 ```
 
 ### Using Real ns-3 NR Output
 
-Replace the generated files in `data/` with the actual output from running
-an ns-3 5G-LENA simulation. The parser reads the exact format produced by
-`NrBearerStatsCalculator`:
-
 ```bash
-# In your ns-3 build directory, run the NR demo
+# In your ns-3 build directory
 ./ns3 run "cttc-nr-demo --enableTraces=true"
 
-# Then copy the output files
+# Copy trace files
 cp DlRlcStats.txt UlRlcStats.txt DlPhySinr.txt UlPhySinr.txt ns3-viz/data/
 
-# Regenerate visualizations
-python3 visualize_nr.py
+# Run visualizations on real data
+python3 run_all.py --skip-generate
 ```
+
+---
+
+## Generic Parser API
+
+```python
+from ns3_trace_parser import NrRlcStatsParser, NrPhySinrParser, auto_parse
+
+# Explicit parser
+dl = NrRlcStatsParser.from_file("data/DlRlcStats.txt")
+
+# Auto-detect from filename
+sinr = auto_parse("data/DlPhySinr.txt")
+
+# Works identically for LTE (same trace format)
+from ns3_trace_parser import LteRlcStatsParser
+lte_dl = LteRlcStatsParser.from_file("data/DlRlcStats.txt")
+```
+
+---
+
+## File Structure
+
+```
+ns3-viz/
+├── ns3_trace_parser.py    # Generic base parser — reusable for all ns-3 modules
+├── ns3_nr_parser.py       # NR-specific derived metrics (wraps base parser)
+├── generate_traces.py     # Synthetic trace generator (matches real ns-3 format)
+├── visualize_nr.py        # 8-panel static KPI dashboard
+├── animate_handover.py    # Handover animation (GIF/MP4)
+├── flow_filter.py         # Flow-ID / UE filter engine
+├── json_exporter.py       # Structured JSON export
+├── kpi_dashboard.py       # Advanced KPI panels (PRB, CQI, HARQ, comparison)
+├── netsimulyzer_bridge.py # NetSimulyzer 3D visualizer JSON bridge
+├── report_generator.py    # HTML report + AI agent observation interface
+├── realtime_dashboard.py  # Real-time file-watch dashboard
+├── netanim_parser.py      # NetAnim XML parser + NR-KPI overlay
+├── multi_run_ci.py        # Multi-run statistical CI + Welch t-test
+├── sem_integration.py     # SEM parameter sweep integration
+├── style_checker.py       # ns-3 clang-format config + PEP-8 checker
+├── run_all.py             # One-command CLI runner
+├── ns3_nr_dashboard.ipynb # Interactive Jupyter notebook
+├── requirements.txt       # Core: matplotlib, numpy, pandas only
+├── tests/
+│   └── test_parser.py     # pytest suite (parser, filter, statistics)
+├── data/
+│   ├── DlRlcStats.txt
+│   ├── UlRlcStats.txt
+│   ├── DlPhySinr.txt
+│   ├── UlPhySinr.txt
+│   ├── topology.json
+│   └── flow_monitor.json
+└── figures/               # Generated outputs (gitignored)
+```
+
+---
+
+## Running Tests
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+Tests cover: column presence, type correctness, SINR unit conversion, MCS monotonicity, packet loss bounds, filter correctness, Jain's Fairness Index bounds.
 
 ---
 
 ## GSoC 2026 Project Scope
 
-The full GSoC project would extend this proof-of-concept to:
+The full GSoC project extends this proof-of-concept into mergeable, documented, tested ns-3 code:
 
-1. **Jupyter Widget Dashboard** — Interactive ipywidgets sliders to filter by
-   UE, cell, time range; toggle between DL/UL; select metrics
-2. **NetAnim Integration** — Python wrapper to launch NetAnim from Jupyter
-3. **Automated Report Generation** — One-command PDF report from any NR example
-4. **More NR-Specific Metrics** — HARQ retransmission rate, CQI distribution,
-   beamforming gain, PRB utilization
-5. **Handover Analysis** — Automatic detection and annotation of handover events
-   from RRC trace files
+1. **Hardened parser library** — production-quality, fully documented column semantics
+2. **Interactive Jupyter dashboard** — ipywidgets sliders, no re-run required
+3. **Handover analysis** — automatic detection from RRC trace files
+4. **C++ NrVisualizationHelper** — optional convenience class in ns-3-nr
+5. **SEM campaign integration** — parameter sweep → visualization pipeline
+6. **ns-3 wiki page** — milestone tracking per contributor guide
+
+**What this project will NOT do:** Attempt to visualize everything for every ns-3 module in one shot. The generic base parser makes future extension straightforward, but the GSoC scope is deliberately focused on the NR module first.
 
 ---
 
@@ -145,3 +205,4 @@ The full GSoC project would extend this proof-of-concept to:
 - [ns-3 documentation](https://www.nsnam.org/documentation/)
 - [GSoC 2026 project idea](https://www.nsnam.org/wiki/GSOC2026Projects#Enabling_5G_NR_examples_visualization)
 - [NrBearerStatsCalculator source](https://gitlab.com/cttc-lena/nr/-/blob/master/helper/nr-bearer-stats-calculator.cc)
+- [PhyStatsCalculator source](https://gitlab.com/cttc-lena/nr/-/blob/master/helper/phy-stats-calculator.cc)
