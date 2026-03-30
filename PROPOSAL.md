@@ -50,24 +50,25 @@ The code was written after reading the `NrBearerStatsCalculator` and `PhyStatsCa
 
 ## 5b. Why Me?
 
-I am the only applicant who has built a working proof-of-concept for this specific project before the application deadline. The toolkit already covers the core deliverables: parser, dashboard, animation, JSON export, filter engine, and test suite.
+I did not write this proposal and then go build something. I built something first, ran into the actual problems (undocumented column order, linear-scale SINR with no dB conversion anywhere in the docs, zero-byte epochs during handovers), and then wrote the proposal based on what I found.
 
-More specifically:
-- I read the ns-3 NR C++ source (`nr-bearer-stats-calculator.cc`, `phy-stats-calculator.cc`) and identified that the column order and SINR unit (linear, not dB) are undocumented — this is the exact problem the project is supposed to solve
-- I read mentor feedback (Alberto Gallegos) about past visualizer failures and restructured the design around those failure modes before submitting
-- My background at Bolna AI (real-time systems, async task queues) and BITS Pilani (CS) gives me the systems thinking needed for a maintainable, long-lived tool
-- I have zero other commitments during the GSoC coding period
+I also read Alberto Gallegos' feedback on past visualizer failures in the GSoC Zulip channel and restructured the entire design around those failure modes before submitting — minimal dependencies, a generic base parser reusable across ns-3 modules, isolated column schemas so ns-3 format changes require one-line fixes.
+
+My day job at Bolna AI is building systems that have to stay running and stay maintainable. That is a different problem than writing a GSoC demo. I am applying here because I want to build something that researchers are still using three years from now, not something that breaks on the next ns-3 release.
 
 ---
 
 ## 6. Personal Background
 
-- Pre-final year undergraduate at **BITS Pilani, Pilani Campus** (B.E. Computer Science)
-- Currently interning as Software Development Engineer at **Bolna AI (YC W24)** — building backend infrastructure for real-time AI voice agents (session routing, async task queues, concurrent call handling)
-- Previously Research Intern at **Dubverse** (ML pipeline tooling) and SDE at **Bachatt** (backend, Python/Spring Boot)
-- **48th rank** out of 70,000+ participants in Amazon ML Challenge 2024, received Pre-Placement Interview offer
-- Strong Python background: `pandas`, `matplotlib`, `numpy`, `ipywidgets`, `pytest`, `scipy`; working knowledge of C++
-- Familiar with Git, GitLab merge requests, and open-source contribution workflows
+I am a final-year undergraduate at BITS Pilani, Pilani Campus (B.E. Computer Science).
+
+I currently intern as an SDE at **Bolna AI (YC)**, building backend infrastructure for real-time AI voice agents — session routing, async task queues, concurrent call handling. It is the kind of work where you think constantly about where things run and what happens when they fail. That mindset is directly what this project needs: a visualizer that survives ns-3 changes and stays maintainable long after GSoC ends.
+
+Before Bolna, I was a Research Intern at **Dubverse** working on ML pipeline tooling, and an SDE at **Bachatt** and **Rupeedlo** on backend systems in Python and Go.
+
+I ranked **48th out of 70,000+ participants** in the Amazon ML Challenge in both 2024 and 2025, and received a Pre-Placement Interview offer for Applied Scientist at Amazon off the back of that.
+
+On the technical side: Python is my primary language (pandas, matplotlib, numpy, ipywidgets, pytest, scipy). I have working knowledge of C++ sufficient to write and test a small ns-3 helper class. I am comfortable with Git, GitLab merge requests, and open-source contribution workflows.
 
 ---
 
