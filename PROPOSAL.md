@@ -118,6 +118,7 @@ The prototype runs on synthetic trace data that exactly matches the format produ
 - A C++ trace sink helper (in ns-3-nr) that enables easier collection of KPI data without manual file parsing
 - Tests, Doxygen-compatible documentation, and ns-3 coding style compliance throughout
 - A wiki page tracking milestones and deliverables per the ns-3 contributor guide
+- All MRs submitted to the CTTC LENA NR module repository (`gitlab.com/cttc-lena/nr`), not ns-3-dev, per the project's merge path
 
 ---
 
