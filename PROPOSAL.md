@@ -367,4 +367,4 @@ I will commit daily, open a draft MR for each week's deliverable, and post weekl
 
 I acknowledge that during the project I will follow the general ns-3 policies available at [https://www.nsnam.org/about/governance/policies/](https://www.nsnam.org/about/governance/policies/).
 
-**AI use disclosure:** I used Cursor AI (powered by Claude) as a coding assistant to help write and review Python scripts in the proof-of-concept repository, and to assist in drafting sections of this proposal. I am the principal driver of all technical decisions, architecture choices, and the research into the ns-3 NR source code. I understand the proposal and the code in full.
+**AI use disclosure:** I used AI coding tools as assistants while writing Python scripts in the proof-of-concept repository. I am the principal driver of all technical decisions, architecture choices, and the research into the ns-3 NR source code. I understand the proposal and the code in full.
